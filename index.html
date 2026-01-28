@@ -1,0 +1,91 @@
+<div class="row g-4">
+    <ng-container *ngFor="let item of zc?.studioList | slice:0:2; let i = index">
+
+        <div class="col-lg-6" *ngIf="item">
+
+            <!-- NORMAL CONTENT CARD -->
+            <div *ngIf="
+          (item?.blog_category?.code === 'podcast' && item?.series_type?.uid !== 'series') ||
+          item?.blog_category?.code !== 'podcast'
+        " class="content-card bg-dark border-secondary h-100 ">
+                <div class="position-relative media-container " *ngIf="item?.attachment?.[0]" (click)="
+  item?.attachment?.[0]?.contentType?.includes('audio')
+    ? zc.playAudio($event)
+    : item?.attachment?.[0]?.contentType?.includes('video')
+      ? zc.playVideo($event)
+      : null
+">
+
+                    <!-- IMAGE -->
+                    <img *ngIf="item?.feature_image?.[0]?.fullPath" [src]="item.feature_image[0].fullPath"
+                        class="card-img-top opacity-75 w-100" alt="" />
+
+                    <div class="play-button"></div>
+                    <div *ngIf="!item?.feature_image?.[0]?.fullPath" class="card-img-top w-100">
+
+                    </div>
+                    <audio class="w-100" *ngIf="item.attachment?.[0].contentType?.includes('audio')" id="audio"
+                        [src]="item?.attachment?.[0]?.fullPath"></audio>
+                    <video class="w-100 position-absolute top-0 h-100"
+                        *ngIf="item?.attachment?.[0].contentType?.includes('video')" id="video"
+                        [src]="item?.attachment?.[0]?.fullPath" controls></video>
+
+
+
+                    <!-- BADGE -->
+                    <span class="badge bg-danger position-absolute top-0 start-0 m-3">
+                        {{ item?.blog_category?.name }}
+                    </span>
+
+                </div>
+
+
+                <div class="card-body">
+                    <h4 class="fw-bold text-white">{{ item?.title }}</h4>
+                    <p class="text-secondary small mb-0">{{ item?.description }}</p>
+                    <a routerLink="/blog-details" [queryParams]="{ uid: item?.uid }"
+                        class="text-white small fw-bold text-decoration-none">View Details →</a>
+                </div>
+            </div>
+
+            <!-- PODCAST SERIES -->
+            <div *ngIf="
+          item?.blog_category?.code === 'podcast' &&
+          item?.series_type?.uid === 'series' &&
+          item?.blog_studio_series?.length
+        " class="d-flex flex-column gap-3 h-100">
+                <div *ngFor="let serie of item.blog_studio_series"
+                    class="podcast-card p-3 rounded d-flex align-items-center gap-3 cursor-pointer">
+                    <div *ngIf="serie?.attachment?.[0]?.contentType?.includes('audio')"
+                        class="bg-secondary rounded d-flex align-items-center justify-content-center text-white"
+                        style="width: 80px; height: 80px; flex-shrink: 0;" onclick="zc.playAudio(event)">
+                        <i class="fas fa-headphones fs-3"></i>
+                    </div>
+                    <div *ngIf="serie?.attachment?.[0]?.contentType?.includes('video')"
+                        class="bg-secondary rounded d-flex align-items-center justify-content-center text-white"
+                        style="width: 80px; height: 80px; flex-shrink: 0;" onclick="zc.playVideo(event)">
+                        <i class="fas fa-headphones fs-3"></i>
+                    </div>
+
+                    <div>
+                        <span class="meta-tag mb-1">Podcast • Ep {{ serie?.order }}</span>
+                        <h6 class="fw-bold mb-1">{{ serie?.title }}</h6>
+                        <small class="text-secondary">{{ serie?.short_description }}</small>
+                        <audio class="w-100" *ngIf="serie.attachment?.[0].contentType?.includes('audio')" id="audio"
+                            [src]="serie?.attachment?.[0]?.fullPath"></audio>
+
+                    </div>
+                    <div class="ms-auto"><i *ngIf="serie.attachment?.[0].contentType?.includes('audio')"
+                            class="icon-play fs-3"></i>
+                        <video style="height: 100px;width: 200px;"
+                            *ngIf="serie?.attachment?.[0].contentType?.includes('video')" id="video"
+                            [src]="serie?.attachment?.[0]?.fullPath" controls></video>
+                    </div>
+
+                </div>
+                <a href="javascript:;" routerLink="/blog-details" [queryParams]="{ uid: item?.uid }">View Details</a>
+            </div>
+
+        </div>
+    </ng-container>
+</div>
