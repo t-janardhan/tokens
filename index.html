@@ -1,91 +1,255 @@
-<div class="row g-4">
-    <ng-container *ngFor="let item of zc?.studioList | slice:0:2; let i = index">
+<!DOCTYPE html>
+<html lang="en">
 
-        <div class="col-lg-6" *ngIf="item">
+<head>
+    <meta charset="UTF-8">
+    <title>Token Display</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            <!-- NORMAL CONTENT CARD -->
-            <div *ngIf="
-          (item?.blog_category?.code === 'podcast' && item?.series_type?.uid !== 'series') ||
-          item?.blog_category?.code !== 'podcast'
-        " class="content-card bg-dark border-secondary h-100 ">
-                <div class="position-relative media-container " *ngIf="item?.attachment?.[0]" (click)="
-  item?.attachment?.[0]?.contentType?.includes('audio')
-    ? zc.playAudio($event)
-    : item?.attachment?.[0]?.contentType?.includes('video')
-      ? zc.playVideo($event)
-      : null
-">
+    <style>
+        body {
+            margin: 0;
+            background: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
 
-                    <!-- IMAGE -->
-                    <img *ngIf="item?.feature_image?.[0]?.fullPath" [src]="item.feature_image[0].fullPath"
-                        class="card-img-top opacity-75 w-100" alt="" />
+        /* Layout */
+        .tv {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-                    <div class="play-button"></div>
-                    <div *ngIf="!item?.feature_image?.[0]?.fullPath" class="card-img-top w-100">
+        .board {
+            width: 60%;
+            perspective: 1000px;
+        }
 
-                    </div>
-                    <audio class="w-100" *ngIf="item.attachment?.[0].contentType?.includes('audio')" id="audio"
-                        [src]="item?.attachment?.[0]?.fullPath"></audio>
-                    <video class="w-100 position-absolute top-0 h-100"
-                        *ngIf="item?.attachment?.[0].contentType?.includes('video')" id="video"
-                        [src]="item?.attachment?.[0]?.fullPath" controls></video>
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
+        /* List Item */
+        li {
+            font-size: 38px;
+            padding: 14px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            opacity: 0;
+        }
 
+        /* READY */
+        .ready {
+            color: #00ff9c;
+            font-weight: bold;
+        }
 
-                    <!-- BADGE -->
-                    <span class="badge bg-danger position-absolute top-0 start-0 m-3">
-                        {{ item?.blog_category?.name }}
-                    </span>
+        /* ================= BUTTON ================= */
+        .audio-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            padding: 12px 24px;
+            cursor: pointer;
+            z-index: 200;
+        }
 
-                </div>
+        /* ================= ANIMATIONS ================= */
 
+        /* Flip IN */
+        .flip-in {
+            animation: flipIn 0.7s forwards;
+            transform-origin: top;
+        }
 
-                <div class="card-body">
-                    <h4 class="fw-bold text-white">{{ item?.title }}</h4>
-                    <p class="text-secondary small mb-0">{{ item?.description }}</p>
-                    <a routerLink="/blog-details" [queryParams]="{ uid: item?.uid }"
-                        class="text-white small fw-bold text-decoration-none">View Details →</a>
-                </div>
-            </div>
+        @keyframes flipIn {
+            from {
+                opacity: 0;
+                transform: rotateX(90deg);
+            }
 
-            <!-- PODCAST SERIES -->
-            <div *ngIf="
-          item?.blog_category?.code === 'podcast' &&
-          item?.series_type?.uid === 'series' &&
-          item?.blog_studio_series?.length
-        " class="d-flex flex-column gap-3 h-100">
-                <div *ngFor="let serie of item.blog_studio_series"
-                    class="podcast-card p-3 rounded d-flex align-items-center gap-3 cursor-pointer">
-                    <div *ngIf="serie?.attachment?.[0]?.contentType?.includes('audio')"
-                        class="bg-secondary rounded d-flex align-items-center justify-content-center text-white"
-                        style="width: 80px; height: 80px; flex-shrink: 0;" onclick="zc.playAudio(event)">
-                        <i class="fas fa-headphones fs-3"></i>
-                    </div>
-                    <div *ngIf="serie?.attachment?.[0]?.contentType?.includes('video')"
-                        class="bg-secondary rounded d-flex align-items-center justify-content-center text-white"
-                        style="width: 80px; height: 80px; flex-shrink: 0;" onclick="zc.playVideo(event)">
-                        <i class="fas fa-headphones fs-3"></i>
-                    </div>
+            to {
+                opacity: 1;
+                transform: rotateX(0);
+            }
+        }
 
-                    <div>
-                        <span class="meta-tag mb-1">Podcast • Ep {{ serie?.order }}</span>
-                        <h6 class="fw-bold mb-1">{{ serie?.title }}</h6>
-                        <small class="text-secondary">{{ serie?.short_description }}</small>
-                        <audio class="w-100" *ngIf="serie.attachment?.[0].contentType?.includes('audio')" id="audio"
-                            [src]="serie?.attachment?.[0]?.fullPath"></audio>
+        /* Fade IN (optional) */
+        .fade-in {
+            animation: fadeIn 0.6s forwards;
+        }
 
-                    </div>
-                    <div class="ms-auto"><i *ngIf="serie.attachment?.[0].contentType?.includes('audio')"
-                            class="icon-play fs-3"></i>
-                        <video style="height: 100px;width: 200px;"
-                            *ngIf="serie?.attachment?.[0].contentType?.includes('video')" id="video"
-                            [src]="serie?.attachment?.[0]?.fullPath" controls></video>
-                    </div>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
 
-                </div>
-                <a href="javascript:;" routerLink="/blog-details" [queryParams]="{ uid: item?.uid }">View Details</a>
-            </div>
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
+        /* Slide OUT */
+        .slide-out {
+            animation: slideOut 0.4s forwards;
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button id="audioBtn" class="audio-btn">🔊 Start Audio</button>
+
+    <div class="tv">
+        <div class="board">
+            <ul id="list"></ul>
         </div>
-    </ng-container>
-</div>
+    </div>
+
+    <script>
+        /* ================= CONFIG ================= */
+        const RECORDS_PER_PAGE = 6;
+        const PAGE_INTERVAL = 5000;
+        const ANIMATION_TYPE = "flip"; // "flip" | "fade"
+
+        /* ================= DATA ================= */
+        const tokenData = Array.from({ length: 35 }, (_, i) => ({
+            token: i + 1,
+            status: (i % 3 === 1) ? "READY" : "WAITING"
+        }));
+
+        /* ================= STATE ================= */
+        const list = document.getElementById("list");
+        const audioBtn = document.getElementById("audioBtn");
+
+        let pageIndex = 0;
+        let isAudioEnabled = false;
+        let voices = [];
+        let queue = [];
+        let announced = new Set();
+
+        /* ================= RENDER ================= */
+        function renderPage() {
+
+            const oldItems = [...list.children];
+
+            // OUT animation
+            oldItems.forEach((li, i) => {
+                li.classList.add("slide-out");
+                li.style.animationDelay = `${i * 0.05}s`;
+            });
+
+            // After OUT, render new records
+            setTimeout(() => {
+                list.innerHTML = "";
+
+                tokenData
+                    .slice(pageIndex, pageIndex + RECORDS_PER_PAGE)
+                    .forEach((item, i) => {
+
+                        const li = document.createElement("li");
+
+                        li.className =
+                            ANIMATION_TYPE === "flip" ? "flip-in" : "fade-in";
+
+                        li.style.animationDelay = `${i * 0.12}s`;
+
+                        li.innerHTML = `
+                    <span>Token ${String(item.token).padStart(2, "0")}</span>
+                    <span class="${item.status === "READY" ? "ready" : ""}">
+                        ${item.status}
+                    </span>
+                `;
+
+                        list.appendChild(li);
+                    });
+
+            }, 450);
+        }
+
+        /* Initial render */
+        renderPage();
+
+        /* Page rotation */
+        setInterval(() => {
+            pageIndex += RECORDS_PER_PAGE;
+            if (pageIndex >= tokenData.length) pageIndex = 0;
+            renderPage();
+        }, PAGE_INTERVAL);
+
+        /* ================= AUDIO ================= */
+        audioBtn.onclick = () => {
+            isAudioEnabled = !isAudioEnabled;
+
+            if (isAudioEnabled) {
+                audioBtn.innerText = "⏹ Stop Audio";
+                startAnnouncements();
+            } else {
+                audioBtn.innerText = "🔊 Start Audio";
+                speechSynthesis.cancel();
+                queue = [];
+            }
+        };
+
+        function startAnnouncements() {
+            voices = speechSynthesis.getVoices();
+            queue = [];
+
+            tokenData.forEach(item => {
+                if (item.status === "READY" && !announced.has(item.token)) {
+                    announced.add(item.token);
+                    queue.push(item.token);
+                }
+            });
+
+            speakNext();
+        }
+
+        speechSynthesis.onvoiceschanged = () => {
+            voices = speechSynthesis.getVoices();
+        };
+
+        function speakNext() {
+            if (!isAudioEnabled || !queue.length) return;
+
+            const token = queue.shift();
+            const counter = Math.floor(Math.random() * 6) + 1;
+
+            const msg = new SpeechSynthesisUtterance(
+                `Token number ${token}. Your order is ready. Please collect at counter ${counter}.`
+            );
+
+            msg.voice =
+                voices.find(v => v.name.toLowerCase().includes("female")) ||
+                voices[0];
+
+            msg.rate = 0.9;
+            msg.onend = () => setTimeout(speakNext, 2000);
+
+            speechSynthesis.speak(msg);
+        }
+    </script>
+
+</body>
+
+</html>
