@@ -199,16 +199,9 @@
 
         /* ================= AUDIO ================= */
         audioBtn.onclick = () => {
-            isAudioEnabled = !isAudioEnabled;
-
-            if (isAudioEnabled) {
-                audioBtn.innerText = "⏹ Stop Audio";
-                startAnnouncements();
-            } else {
-                audioBtn.innerText = "🔊 Start Audio";
-                speechSynthesis.cancel();
-                queue = [];
-            }
+            isAudioEnabled = true;
+            audioBtn.style.display = "none";   // 👈 HIDE BUTTON
+            startAnnouncements();
         };
 
         function startAnnouncements() {
